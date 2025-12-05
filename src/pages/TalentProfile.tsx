@@ -1,17 +1,15 @@
 import React, { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { 
-  Star, MapPin, Clock, Award, Play, Eye, MessageSquare, 
+import {
+  Star, MapPin, Clock, Award, Play, Eye, MessageSquare,
   CheckCircle, Calendar, DollarSign, Users, ArrowLeft,
   ExternalLink, Download, Share
 } from 'lucide-react';
-import { UserType } from '../types';
+import { useAuth } from '../context/AuthContext';
+import { getTalentById } from '../data/mockTalents';
 
-interface TalentProfileProps {
-  userType: UserType;
-}
-
-const TalentProfile: React.FC<TalentProfileProps> = ({ userType }) => {
+const TalentProfile: React.FC = () => {
+  const { userType } = useAuth();
   const { id } = useParams();
   const [activeTab, setActiveTab] = useState('portfolio');
 

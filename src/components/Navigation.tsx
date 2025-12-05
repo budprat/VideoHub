@@ -1,24 +1,24 @@
-import React from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import { Video, User, Briefcase, Search, Plus, Bell, Settings } from 'lucide-react';
-import { UserType } from '../types';
+import React, { useState } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Video, Briefcase, Search, Plus, Bell, Settings, LogOut, Menu, X } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
+import { Avatar } from './common/Avatar';
+import { Button } from './common/Button';
 
-interface NavigationProps {
-  userType: UserType;
-  setUserType: (type: UserType) => void;
-  isAuthenticated: boolean;
-  setIsAuthenticated: (auth: boolean) => void;
-}
-
-const Navigation: React.FC<NavigationProps> = ({ 
-  userType, 
-  setUserType, 
-  isAuthenticated, 
-  setIsAuthenticated 
-}) => {
+const Navigation: React.FC = () => {
   const location = useLocation();
+  const navigate = useNavigate();
+  const { isAuthenticated, userType, setUserType, user, logout } = useAuth();
+  const [showProfileMenu, setShowProfileMenu] = useState(false);
+  const [showMobileMenu, setShowMobileMenu] = useState(false);
 
   const isActive = (path: string) => location.pathname === path;
+
+  const handleLogout = () => {
+    logout();
+    navigate('/');
+    setShowProfileMenu(false);
+  };
 
   return (
     <nav className="bg-white border-b border-gray-200 sticky top-0 z-50 shadow-sm">
@@ -26,22 +26,22 @@ const Navigation: React.FC<NavigationProps> = ({
         <div className="flex justify-between items-center h-16">
           {/* Logo and Brand */}
           <Link to="/" className="flex items-center space-x-3">
-            <div className="bg-blue-600 p-2 rounded-lg">
+            <div className="bg-gradient-to-r from-blue-600 to-purple-600 p-2 rounded-lg">
               <Video className="h-6 w-6 text-white" />
             </div>
-            <div>
-              <span className="text-xl font-bold text-gray-900">AI Video Hub</span>
-              <span className="text-sm text-gray-500 ml-2">Professional Talent Marketplace</span>
+            <div className="hidden sm:block">
+              <span className="text-xl font-bold text-gray-900">VideoHub</span>
+              <span className="text-sm text-gray-500 ml-2 hidden lg:inline">AI Video Talent Marketplace</span>
             </div>
           </Link>
 
-          {/* Main Navigation */}
-          {isAuthenticated && (
-            <div className="hidden md:flex items-center space-x-8">
-              {userType === 'agency' ? (
+          {/* Main Navigation - Desktop */}
+          <div className="hidden md:flex items-center space-x-6">
+            {isAuthenticated ? (
+              userType === 'agency' ? (
                 <>
-                  <Link 
-                    to="/discover" 
+                  <Link
+                    to="/discover"
                     className={`flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
                       isActive('/discover') ? 'bg-blue-50 text-blue-600' : 'text-gray-700 hover:text-blue-600'
                     }`}
@@ -49,8 +49,8 @@ const Navigation: React.FC<NavigationProps> = ({
                     <Search className="h-4 w-4" />
                     <span>Discover Talent</span>
                   </Link>
-                  <Link 
-                    to="/post-project" 
+                  <Link
+                    to="/post-project"
                     className={`flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
                       isActive('/post-project') ? 'bg-blue-50 text-blue-600' : 'text-gray-700 hover:text-blue-600'
                     }`}
@@ -58,8 +58,8 @@ const Navigation: React.FC<NavigationProps> = ({
                     <Plus className="h-4 w-4" />
                     <span>Post Project</span>
                   </Link>
-                  <Link 
-                    to="/dashboard" 
+                  <Link
+                    to="/dashboard"
                     className={`flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
                       isActive('/dashboard') ? 'bg-blue-50 text-blue-600' : 'text-gray-700 hover:text-blue-600'
                     }`}
@@ -70,8 +70,8 @@ const Navigation: React.FC<NavigationProps> = ({
                 </>
               ) : (
                 <>
-                  <Link 
-                    to="/discover" 
+                  <Link
+                    to="/discover"
                     className={`flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
                       isActive('/discover') ? 'bg-blue-50 text-blue-600' : 'text-gray-700 hover:text-blue-600'
                     }`}
@@ -79,8 +79,8 @@ const Navigation: React.FC<NavigationProps> = ({
                     <Search className="h-4 w-4" />
                     <span>Browse Projects</span>
                   </Link>
-                  <Link 
-                    to="/dashboard" 
+                  <Link
+                    to="/dashboard"
                     className={`flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
                       isActive('/dashboard') ? 'bg-blue-50 text-blue-600' : 'text-gray-700 hover:text-blue-600'
                     }`}
@@ -89,21 +89,32 @@ const Navigation: React.FC<NavigationProps> = ({
                     <span>My Work</span>
                   </Link>
                 </>
-              )}
-            </div>
-          )}
+              )
+            ) : (
+              <>
+                <Link
+                  to="/discover"
+                  className={`text-sm font-medium transition-colors ${
+                    isActive('/discover') ? 'text-blue-600' : 'text-gray-700 hover:text-blue-600'
+                  }`}
+                >
+                  Browse Talent
+                </Link>
+              </>
+            )}
+          </div>
 
           {/* Right Side Actions */}
           <div className="flex items-center space-x-4">
-            {isAuthenticated && (
+            {isAuthenticated ? (
               <>
                 {/* User Type Toggle */}
-                <div className="flex items-center bg-gray-100 rounded-lg p-1">
+                <div className="hidden sm:flex items-center bg-gray-100 rounded-lg p-1">
                   <button
                     onClick={() => setUserType('agency')}
                     className={`px-3 py-1 rounded-md text-sm font-medium transition-colors ${
-                      userType === 'agency' 
-                        ? 'bg-white text-gray-900 shadow-sm' 
+                      userType === 'agency'
+                        ? 'bg-white text-gray-900 shadow-sm'
                         : 'text-gray-600 hover:text-gray-900'
                     }`}
                   >
@@ -112,8 +123,8 @@ const Navigation: React.FC<NavigationProps> = ({
                   <button
                     onClick={() => setUserType('talent')}
                     className={`px-3 py-1 rounded-md text-sm font-medium transition-colors ${
-                      userType === 'talent' 
-                        ? 'bg-white text-gray-900 shadow-sm' 
+                      userType === 'talent'
+                        ? 'bg-white text-gray-900 shadow-sm'
                         : 'text-gray-600 hover:text-gray-900'
                     }`}
                   >
@@ -124,41 +135,154 @@ const Navigation: React.FC<NavigationProps> = ({
                 {/* Notifications */}
                 <button className="relative p-2 text-gray-600 hover:text-gray-900 transition-colors">
                   <Bell className="h-5 w-5" />
-                  <span className="absolute top-0 right-0 h-2 w-2 bg-red-500 rounded-full"></span>
+                  <span className="absolute top-1 right-1 h-2 w-2 bg-red-500 rounded-full"></span>
                 </button>
 
                 {/* Profile Menu */}
-                <div className="flex items-center space-x-3">
-                  <img
-                    src="https://images.pexels.com/photos/614810/pexels-photo-614810.jpeg?auto=compress&cs=tinysrgb&w=32&h=32&fit=crop&crop=face"
-                    alt="Profile"
-                    className="h-8 w-8 rounded-full object-cover"
-                  />
-                  <button className="text-gray-600 hover:text-gray-900 transition-colors">
-                    <Settings className="h-5 w-5" />
+                <div className="relative">
+                  <button
+                    onClick={() => setShowProfileMenu(!showProfileMenu)}
+                    className="flex items-center space-x-2"
+                  >
+                    <Avatar
+                      src={user?.avatar}
+                      alt={user?.name}
+                      fallback={user?.name}
+                      size="sm"
+                    />
                   </button>
-                </div>
-              </>
-            )}
 
-            {!isAuthenticated && (
-              <div className="flex items-center space-x-4">
-                <button 
-                  onClick={() => setIsAuthenticated(true)}
-                  className="text-gray-700 hover:text-blue-600 font-medium transition-colors"
+                  {showProfileMenu && (
+                    <>
+                      <div
+                        className="fixed inset-0 z-10"
+                        onClick={() => setShowProfileMenu(false)}
+                      />
+                      <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-20">
+                        <div className="px-4 py-2 border-b border-gray-100">
+                          <p className="font-medium text-gray-900">{user?.name}</p>
+                          <p className="text-sm text-gray-500">{user?.email}</p>
+                        </div>
+                        <Link
+                          to="/dashboard"
+                          className="flex items-center space-x-2 px-4 py-2 text-gray-700 hover:bg-gray-50"
+                          onClick={() => setShowProfileMenu(false)}
+                        >
+                          <Briefcase className="h-4 w-4" />
+                          <span>Dashboard</span>
+                        </Link>
+                        <Link
+                          to="/settings"
+                          className="flex items-center space-x-2 px-4 py-2 text-gray-700 hover:bg-gray-50"
+                          onClick={() => setShowProfileMenu(false)}
+                        >
+                          <Settings className="h-4 w-4" />
+                          <span>Settings</span>
+                        </Link>
+                        <button
+                          onClick={handleLogout}
+                          className="flex items-center space-x-2 px-4 py-2 text-red-600 hover:bg-gray-50 w-full"
+                        >
+                          <LogOut className="h-4 w-4" />
+                          <span>Sign Out</span>
+                        </button>
+                      </div>
+                    </>
+                  )}
+                </div>
+
+                {/* Mobile Menu Button */}
+                <button
+                  onClick={() => setShowMobileMenu(!showMobileMenu)}
+                  className="md:hidden p-2 text-gray-600 hover:text-gray-900"
                 >
-                  Sign In
+                  {showMobileMenu ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
                 </button>
-                <button 
-                  onClick={() => setIsAuthenticated(true)}
-                  className="bg-blue-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-700 transition-colors"
-                >
-                  Get Started
-                </button>
+              </>
+            ) : (
+              <div className="flex items-center space-x-3">
+                <Link to="/login">
+                  <Button variant="ghost">Sign In</Button>
+                </Link>
+                <Link to="/register" className="hidden sm:block">
+                  <Button>Get Started</Button>
+                </Link>
               </div>
             )}
           </div>
         </div>
+
+        {/* Mobile Menu */}
+        {showMobileMenu && isAuthenticated && (
+          <div className="md:hidden border-t border-gray-200 py-4">
+            <div className="space-y-2">
+              {userType === 'agency' ? (
+                <>
+                  <Link
+                    to="/discover"
+                    className="flex items-center space-x-2 px-3 py-2 rounded-md text-gray-700 hover:bg-gray-50"
+                    onClick={() => setShowMobileMenu(false)}
+                  >
+                    <Search className="h-4 w-4" />
+                    <span>Discover Talent</span>
+                  </Link>
+                  <Link
+                    to="/post-project"
+                    className="flex items-center space-x-2 px-3 py-2 rounded-md text-gray-700 hover:bg-gray-50"
+                    onClick={() => setShowMobileMenu(false)}
+                  >
+                    <Plus className="h-4 w-4" />
+                    <span>Post Project</span>
+                  </Link>
+                </>
+              ) : (
+                <Link
+                  to="/discover"
+                  className="flex items-center space-x-2 px-3 py-2 rounded-md text-gray-700 hover:bg-gray-50"
+                  onClick={() => setShowMobileMenu(false)}
+                >
+                  <Search className="h-4 w-4" />
+                  <span>Browse Projects</span>
+                </Link>
+              )}
+              <Link
+                to="/dashboard"
+                className="flex items-center space-x-2 px-3 py-2 rounded-md text-gray-700 hover:bg-gray-50"
+                onClick={() => setShowMobileMenu(false)}
+              >
+                <Briefcase className="h-4 w-4" />
+                <span>Dashboard</span>
+              </Link>
+
+              {/* Mobile User Type Toggle */}
+              <div className="flex items-center space-x-2 px-3 py-2">
+                <span className="text-sm text-gray-600">View as:</span>
+                <div className="flex items-center bg-gray-100 rounded-lg p-1">
+                  <button
+                    onClick={() => setUserType('agency')}
+                    className={`px-3 py-1 rounded-md text-sm font-medium transition-colors ${
+                      userType === 'agency'
+                        ? 'bg-white text-gray-900 shadow-sm'
+                        : 'text-gray-600'
+                    }`}
+                  >
+                    Agency
+                  </button>
+                  <button
+                    onClick={() => setUserType('talent')}
+                    className={`px-3 py-1 rounded-md text-sm font-medium transition-colors ${
+                      userType === 'talent'
+                        ? 'bg-white text-gray-900 shadow-sm'
+                        : 'text-gray-600'
+                    }`}
+                  >
+                    Talent
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </nav>
   );

@@ -1,17 +1,19 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Play, Star, Users, Award, ArrowRight, CheckCircle } from 'lucide-react';
-import { UserType } from '../types';
+import { useAuth } from '../context/AuthContext';
 
-interface LandingPageProps {
-  setUserType: (type: UserType) => void;
-  setIsAuthenticated: (auth: boolean) => void;
-}
+const LandingPage: React.FC = () => {
+  const navigate = useNavigate();
+  const { setUserType, isAuthenticated } = useAuth();
 
-const LandingPage: React.FC<LandingPageProps> = ({ setUserType, setIsAuthenticated }) => {
-  const handleGetStarted = (type: UserType) => {
+  const handleGetStarted = (type: 'agency' | 'talent') => {
     setUserType(type);
-    setIsAuthenticated(true);
+    if (isAuthenticated) {
+      navigate('/discover');
+    } else {
+      navigate('/register');
+    }
   };
 
   const stats = [
@@ -41,28 +43,26 @@ const LandingPage: React.FC<LandingPageProps> = ({ setUserType, setIsAuthenticat
                   <br />Talent Hub
                 </h1>
                 <p className="text-xl text-gray-300 leading-relaxed">
-                  Connect with certified AI video specialists who master the latest tools and techniques. 
+                  Connect with certified AI video specialists who master the latest tools and techniques.
                   From concept to completion, find the perfect creative partner for your next breakthrough project.
                 </p>
               </div>
 
               <div className="flex flex-col sm:flex-row gap-4">
-                <Link
-                  to="/discover"
+                <button
                   onClick={() => handleGetStarted('agency')}
                   className="group bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-xl font-semibold transition-all duration-300 flex items-center justify-center space-x-2 transform hover:scale-105"
                 >
                   <span>Find AI Video Talent</span>
                   <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
-                </Link>
-                <Link
-                  to="/discover"
+                </button>
+                <button
                   onClick={() => handleGetStarted('talent')}
                   className="group border-2 border-white/30 hover:border-white hover:bg-white/10 text-white px-8 py-4 rounded-xl font-semibold transition-all duration-300 flex items-center justify-center space-x-2"
                 >
                   <span>Join as Creator</span>
                   <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
-                </Link>
+                </button>
               </div>
 
               <div className="flex items-center space-x-6 text-sm text-gray-300">
@@ -136,10 +136,10 @@ const LandingPage: React.FC<LandingPageProps> = ({ setUserType, setIsAuthenticat
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-4xl font-bold text-gray-900 mb-4">
-              Why Choose AI Video Hub?
+              Why Choose VideoHub?
             </h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              The only platform specifically designed for AI video creation professionals. 
+              The only platform specifically designed for AI video creation professionals.
               Every feature is built to accelerate your creative workflow and ensure exceptional results.
             </p>
           </div>
@@ -151,7 +151,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ setUserType, setIsAuthenticat
               </div>
               <h3 className="text-xl font-semibold text-gray-900 mb-4">Certified Expertise</h3>
               <p className="text-gray-600 leading-relaxed">
-                Every creator is verified for proficiency with cutting-edge AI tools including Runway, 
+                Every creator is verified for proficiency with cutting-edge AI tools including Runway,
                 Midjourney Video, and Stable Video Diffusion. Technical skills meet creative vision.
               </p>
             </div>
@@ -162,7 +162,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ setUserType, setIsAuthenticat
               </div>
               <h3 className="text-xl font-semibold text-gray-900 mb-4">Quality Assurance</h3>
               <p className="text-gray-600 leading-relaxed">
-                Comprehensive portfolio verification, client testimonials, and multi-dimensional 
+                Comprehensive portfolio verification, client testimonials, and multi-dimensional
                 rating systems ensure you work with only the highest caliber professionals.
               </p>
             </div>
@@ -173,7 +173,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ setUserType, setIsAuthenticat
               </div>
               <h3 className="text-xl font-semibold text-gray-900 mb-4">Intelligent Matching</h3>
               <p className="text-gray-600 leading-relaxed">
-                AI-powered algorithms consider creative style, technical expertise, and project 
+                AI-powered algorithms consider creative style, technical expertise, and project
                 requirements to connect you with the perfect talent for every unique vision.
               </p>
             </div>
@@ -212,29 +212,68 @@ const LandingPage: React.FC<LandingPageProps> = ({ setUserType, setIsAuthenticat
             Ready to Accelerate Your AI Video Projects?
           </h2>
           <p className="text-xl text-blue-100 mb-8 leading-relaxed">
-            Join thousands of agencies and creators who are already transforming their workflows 
+            Join thousands of agencies and creators who are already transforming their workflows
             with AI-powered video creation
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link
-              to="/discover"
+            <button
               onClick={() => handleGetStarted('agency')}
               className="bg-white text-blue-600 px-8 py-4 rounded-xl font-semibold hover:bg-gray-100 transition-colors flex items-center justify-center space-x-2"
             >
               <span>Start Hiring Talent</span>
               <ArrowRight className="h-5 w-5" />
-            </Link>
-            <Link
-              to="/discover"
+            </button>
+            <button
               onClick={() => handleGetStarted('talent')}
               className="border-2 border-white/30 hover:border-white hover:bg-white/10 text-white px-8 py-4 rounded-xl font-semibold transition-all duration-300 flex items-center justify-center space-x-2"
             >
               <span>Apply as Creator</span>
               <ArrowRight className="h-5 w-5" />
-            </Link>
+            </button>
           </div>
         </div>
       </section>
+
+      {/* Footer */}
+      <footer className="bg-gray-900 text-gray-400 py-12">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid md:grid-cols-4 gap-8">
+            <div>
+              <h3 className="text-white font-semibold mb-4">VideoHub</h3>
+              <p className="text-sm">
+                The premier marketplace for AI video creation talent.
+              </p>
+            </div>
+            <div>
+              <h4 className="text-white font-medium mb-4">For Agencies</h4>
+              <ul className="space-y-2 text-sm">
+                <li><Link to="/discover" className="hover:text-white">Find Talent</Link></li>
+                <li><Link to="/post-project" className="hover:text-white">Post a Project</Link></li>
+                <li><a href="#" className="hover:text-white">Pricing</a></li>
+              </ul>
+            </div>
+            <div>
+              <h4 className="text-white font-medium mb-4">For Creators</h4>
+              <ul className="space-y-2 text-sm">
+                <li><Link to="/register" className="hover:text-white">Join as Talent</Link></li>
+                <li><Link to="/discover" className="hover:text-white">Browse Projects</Link></li>
+                <li><a href="#" className="hover:text-white">Resources</a></li>
+              </ul>
+            </div>
+            <div>
+              <h4 className="text-white font-medium mb-4">Company</h4>
+              <ul className="space-y-2 text-sm">
+                <li><a href="#" className="hover:text-white">About</a></li>
+                <li><a href="#" className="hover:text-white">Blog</a></li>
+                <li><a href="#" className="hover:text-white">Contact</a></li>
+              </ul>
+            </div>
+          </div>
+          <div className="border-t border-gray-800 mt-12 pt-8 text-center text-sm">
+            <p>&copy; {new Date().getFullYear()} VideoHub. All rights reserved.</p>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 };

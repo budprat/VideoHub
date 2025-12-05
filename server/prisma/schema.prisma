@@ -1,0 +1,216 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserType {
+  agency
+  talent
+}
+
+enum Availability {
+  available
+  busy
+  unavailable
+}
+
+enum ProjectStatus {
+  open
+  in_progress
+  completed
+  cancelled
+}
+
+enum ProjectComplexity {
+  simple
+  moderate
+  complex
+}
+
+enum ProposalStatus {
+  pending
+  accepted
+  rejected
+  withdrawn
+}
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  password      String
+  name          String
+  userType      UserType
+  avatar        String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Relations
+  talentProfile TalentProfile?
+  agencyProfile AgencyProfile?
+  sentMessages    Message[]  @relation("SentMessages")
+  receivedMessages Message[] @relation("ReceivedMessages")
+
+  @@index([email])
+}
+
+model TalentProfile {
+  id                String       @id @default(cuid())
+  userId            String       @unique
+  user              User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  title             String
+  location          String
+  bio               String
+  hourlyRateMin     Int?
+  hourlyRateMax     Int?
+  availability      Availability @default(available)
+  responseTime      String?
+  rating            Float        @default(0)
+  completedProjects Int          @default(0)
+
+  skills            String[]
+  aiTools           String[]
+
+  portfolio         PortfolioItem[]
+  certifications    Certification[]
+  testimonials      Testimonial[]
+  proposals         Proposal[]
+
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
+
+  @@index([availability])
+  @@index([rating])
+}
+
+model AgencyProfile {
+  id          String   @id @default(cuid())
+  userId      String   @unique
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  companyName String
+  website     String?
+  industry    String?
+  size        String?
+  description String?
+  rating      Float    @default(0)
+
+  projects    Project[]
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model PortfolioItem {
+  id          String        @id @default(cuid())
+  profileId   String
+  profile     TalentProfile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
+  title       String
+  description String
+  thumbnail   String
+  videoUrl    String?
+  tags        String[]
+  client      String?
+  duration    String?
+  views       Int           @default(0)
+
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+}
+
+model Certification {
+  id        String        @id @default(cuid())
+  profileId String
+  profile   TalentProfile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
+  name      String
+  issuer    String
+  date      DateTime
+  verified  Boolean       @default(false)
+
+  createdAt DateTime      @default(now())
+}
+
+model Testimonial {
+  id            String        @id @default(cuid())
+  profileId     String
+  profile       TalentProfile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
+  clientName    String
+  clientCompany String
+  rating        Float
+  comment       String
+  projectType   String?
+
+  createdAt     DateTime      @default(now())
+}
+
+model Project {
+  id              String            @id @default(cuid())
+  agencyId        String
+  agency          AgencyProfile     @relation(fields: [agencyId], references: [id], onDelete: Cascade)
+
+  title           String
+  description     String
+  category        String
+  budgetMin       Int
+  budgetMax       Int
+  budgetType      String            @default("fixed")
+  timeline        String
+  complexity      ProjectComplexity
+  status          ProjectStatus     @default(open)
+
+  requiredSkills  String[]
+  requiredTools   String[]
+  deliverables    String[]
+
+  proposals       Proposal[]
+
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+
+  @@index([status])
+  @@index([category])
+  @@index([createdAt])
+}
+
+model Proposal {
+  id              String         @id @default(cuid())
+  projectId       String
+  project         Project        @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  talentId        String
+  talent          TalentProfile  @relation(fields: [talentId], references: [id], onDelete: Cascade)
+
+  coverLetter     String
+  proposedBudget  Int
+  proposedTimeline String
+  status          ProposalStatus @default(pending)
+
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+
+  @@unique([projectId, talentId])
+  @@index([status])
+}
+
+model Message {
+  id          String   @id @default(cuid())
+  senderId    String
+  sender      User     @relation("SentMessages", fields: [senderId], references: [id], onDelete: Cascade)
+  receiverId  String
+  receiver    User     @relation("ReceivedMessages", fields: [receiverId], references: [id], onDelete: Cascade)
+
+  content     String
+  read        Boolean  @default(false)
+
+  createdAt   DateTime @default(now())
+
+  @@index([senderId])
+  @@index([receiverId])
+  @@index([createdAt])
+}

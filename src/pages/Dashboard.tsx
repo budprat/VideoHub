@@ -1,16 +1,13 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { 
-  Plus, Search, Filter, Star, Clock, DollarSign, Users, 
+import {
+  Plus, Search, Filter, Star, Clock, DollarSign, Users,
   Briefcase, Eye, MessageSquare, Calendar, Award, TrendingUp
 } from 'lucide-react';
-import { UserType } from '../types';
+import { useAuth } from '../context/AuthContext';
 
-interface DashboardProps {
-  userType: UserType;
-}
-
-const Dashboard: React.FC<DashboardProps> = ({ userType }) => {
+const Dashboard: React.FC = () => {
+  const { userType } = useAuth();
   const [activeTab, setActiveTab] = useState('active');
 
   // Mock data
