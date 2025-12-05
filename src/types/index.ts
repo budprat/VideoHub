@@ -6,9 +6,11 @@ export interface TalentProfile {
   title: string;
   location: string;
   avatar: string;
+  coverImage?: string;
   rating: number;
   completedProjects: number;
   hourlyRate: string;
+  totalEarnings?: string;
   skills: string[];
   aiTools: string[];
   portfolio: PortfolioItem[];
@@ -16,7 +18,17 @@ export interface TalentProfile {
   testimonials: Testimonial[];
   availability: 'available' | 'busy' | 'unavailable';
   responseTime: string;
+  joinDate?: string;
+  languages?: string[];
   bio: string;
+  stats?: TalentStats;
+}
+
+export interface TalentStats {
+  onTimeDelivery: string;
+  repeatClients: string;
+  averageRating: number;
+  budgetAccuracy: string;
 }
 
 export interface PortfolioItem {
@@ -29,6 +41,8 @@ export interface PortfolioItem {
   client: string;
   duration: string;
   views: number;
+  completionDate?: string;
+  budget?: string;
 }
 
 export interface Certification {
@@ -43,6 +57,7 @@ export interface Testimonial {
   id: string;
   clientName: string;
   clientCompany: string;
+  clientAvatar?: string;
   rating: number;
   comment: string;
   projectType: string;

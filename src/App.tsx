@@ -11,6 +11,9 @@ import ProjectPosting from './pages/ProjectPosting';
 import Dashboard from './pages/Dashboard';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
+import SettingsPage from './pages/SettingsPage';
+import ForgotPasswordPage from './pages/ForgotPasswordPage';
+import NotFoundPage from './pages/NotFoundPage';
 
 function AppContent() {
   return (
@@ -57,6 +60,27 @@ function AppContent() {
             </ProtectedRoute>
           }
         />
+        <Route
+          path="/settings"
+          element={
+            <ProtectedRoute>
+              <SettingsPage />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Forgot Password - public route */}
+        <Route
+          path="/forgot-password"
+          element={
+            <PublicOnlyRoute>
+              <ForgotPasswordPage />
+            </PublicOnlyRoute>
+          }
+        />
+
+        {/* 404 - catch all */}
+        <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </div>
   );
